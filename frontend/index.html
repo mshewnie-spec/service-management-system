@@ -1,42 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Volt-Chill Service</title>
+    <title>Volt-Chill Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; border-radius: 4px; }
+        body { font-family: sans-serif; padding: 15px; background: #eee; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 5px; }
+        button { background: #28a745; color: white; border: none; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
     </style>
 </head>
 <body>
-    <h2>New Job Entry</h2>
-    <input type="text" id="customer" placeholder="Customer Name">
-    <input type="text" id="service" placeholder="Service Type (HVAC/Elec)">
-    <button onclick="submitJob()">Submit Job</button>
-    <p id="status"></p>
+    <div class="card">
+        <h3>➕ Add New Job</h3>
+        <input type="text" id="customer" placeholder="Customer Name">
+        <input type="text" id="service" placeholder="Service (AC Repair / Wiring)">
+        <button onclick="submitJob()">Save Job</button>
+    </div>
+
+    <button style="background:#007bff" onclick="loadJobs()">🔄 Refresh Job List</button>
+    <table id="jobTable"><thead><tr><th>Customer</th><th>Service</th></tr></thead><tbody id="list"></tbody></table>
 
     <script>
         async function submitJob() {
             const customer = document.getElementById('customer').value;
             const service = document.getElementById('service').value;
-            const statusBox = document.getElementById('status');
-            
-            // This connects to the backend you just built
-            const response = await fetch('/api/jobs', {
+            await fetch('/api/jobs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ customer_name: customer, service_type: service })
             });
-
-            if (response.ok) {
-                statusBox.innerText = "✅ Job saved to database!";
-                document.getElementById('customer').value = '';
-            } else {
-                statusBox.innerText = "❌ Error saving job.";
-            }
+            loadJobs();
         }
+        async function loadJobs() {
+            const res = await fetch('/api/jobs');
+            const data = await res.json();
+            document.getElementById('list').innerHTML = data.map(j => `<tr><td>${j.customer_name}</td><td>${j.service_type}</td></tr>`).join('');
+        }
+        window.onload = loadJobs;
     </script>
 </body>
 </html>
-
