@@ -1,2 +1,42 @@
-<h1>Volt & Chill Dashboard</h1>
-<p>System Loading...</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Volt-Chill Service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h2>New Job Entry</h2>
+    <input type="text" id="customer" placeholder="Customer Name">
+    <input type="text" id="service" placeholder="Service Type (HVAC/Elec)">
+    <button onclick="submitJob()">Submit Job</button>
+    <p id="status"></p>
+
+    <script>
+        async function submitJob() {
+            const customer = document.getElementById('customer').value;
+            const service = document.getElementById('service').value;
+            const statusBox = document.getElementById('status');
+            
+            // This connects to the backend you just built
+            const response = await fetch('/api/jobs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer_name: customer, service_type: service })
+            });
+
+            if (response.ok) {
+                statusBox.innerText = "✅ Job saved to database!";
+                document.getElementById('customer').value = '';
+            } else {
+                statusBox.innerText = "❌ Error saving job.";
+            }
+        }
+    </script>
+</body>
+</html>
+
